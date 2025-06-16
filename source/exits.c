@@ -1,30 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   exits.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: manelcarvalho <manelcarvalho@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/07 13:38:03 by manu              #+#    #+#             */
-/*   Updated: 2025/06/16 03:37:31 by manelcarval      ###   ########.fr       */
+/*   Created: 2025/06/09 21:52:23 by manelcarval       #+#    #+#             */
+/*   Updated: 2025/06/12 18:13:27 by manelcarval      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int main(int argc, char **argv)
+void	error_msg(char *error)
 {
-    t_table table;
-    
-    if (argc == 5 || argc == 6)
-    {
-        
-        table_init(&table, argv);
-        init_simulation(&table);
-        end_simulation(&table);
-        return (EXIT_SUCCESS);
-    }
-    else
-        error_msg("Number of arguments should be between 4 & 5, consider:");
-    return (0);
+	printf("%s\n%s\n", error, USAGE);
+	exit(EXIT_FAILURE);
 }
