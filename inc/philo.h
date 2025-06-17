@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: manelcarvalho <manelcarvalho@student.42    +#+  +:+       +#+        */
+/*   By: mcarvalh <mcarvalh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/07 13:39:02 by manu              #+#    #+#             */
-/*   Updated: 2025/06/16 11:18:18 by manelcarval      ###   ########.fr       */
+/*   Updated: 2025/06/17 17:47:20 by mcarvalh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,18 @@
 
 # define mili (double) 1000.00 // miliseconds converter
 
+typedef struct s_philo t_philo;
+
+typedef enum e_thread_status
+{
+	CREATE,
+	JOIN,
+	INIT,
+	LOCK,
+	UNLOCK,
+	DESTROY	
+}	t_thread_status;
+
 typedef enum e_status
 {
 	EATING,
@@ -42,8 +54,8 @@ typedef enum e_status
 
 typedef struct s_fork
 {
-    pthread_mutex_t fork;
-    int             fork_id;
+    int				fork_id;
+    pthread_mutex_t	fork;
 } t_fork;
 
 typedef struct s_table
@@ -78,17 +90,12 @@ typedef struct s_philo
 
 //data_init.c
 
-void	table_init(t_table *table, char **argv);
-
-//parsing.c
-
-void	parsing(t_table *table, char **argv);
+void	table_init(t_table *table, int argc, char **argv);
 
 //utils.c
 
-bool	ft_isdigit(char	*str);
-void	check_input(char *str);
-int	ft_atoi(const char *str);
+bool	ft_isdigit(char *str);
+int		ft_atoi(const char *str);
 
 //exits.c
 
