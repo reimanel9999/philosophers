@@ -6,7 +6,7 @@
 /*   By: mcarvalh <mcarvalh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/07 13:38:03 by manu              #+#    #+#             */
-/*   Updated: 2025/06/17 12:07:00 by mcarvalh         ###   ########.fr       */
+/*   Updated: 2025/06/25 15:58:29 by mcarvalh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,14 @@ int main(int argc, char **argv)
     
     if (argc == 5 || argc == 6)
     {
-        
         table_init(&table, argc, argv);
-		// printf("Thread init: %lu\n", table.philos[3].thread);
-        if (init_simulation(&table))
+		printf("Inputs: philos - %d; die - %ld; eat - %ld; sleep - %ld\n", table.philo_nbr, table.time_to_die, table.time_to_eat, table.time_to_sleep);
+        if (!init_simulation(&table)) // && (table.meals_to_eat > 0 || table.meals_to_eat == -42)
+		{
+			cleanup(&table);
 			error_msg("Dinner simulation error.");
-        // end_simulation(&table);
+		}
+        cleanup(&table);
         return (EXIT_SUCCESS);
     }
     else

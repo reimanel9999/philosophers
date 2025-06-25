@@ -6,7 +6,7 @@
 /*   By: mcarvalh <mcarvalh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/07 13:39:02 by manu              #+#    #+#             */
-/*   Updated: 2025/06/17 17:47:20 by mcarvalh         ###   ########.fr       */
+/*   Updated: 2025/06/25 15:57:55 by mcarvalh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 <time_to_die> <time_to_eat> <time_to_sleep> \
 [number_of_times_each_philosopher_must_eat]"
 
-# define mili (double) 1000.00 // miliseconds converter
+# define micro (double) 1000.00 // microseconds converter
 
 typedef struct s_philo t_philo;
 
@@ -44,12 +44,12 @@ typedef enum e_thread_status
 
 typedef enum e_status
 {
+	CONTEMPLATING,
+	DIED,
 	EATING,
 	SLEEPING,
-	CONTEMPLATING,
 	FIRST_FORK,
 	SECOND_FORK,
-	DIED,
 }	t_status;
 
 typedef struct s_fork
@@ -60,13 +60,14 @@ typedef struct s_fork
 
 typedef struct s_table
 {
-    long            philo_nbr;
+    int				philo_nbr;
     long            time_to_die;
     long            time_to_eat;
     long            time_to_sleep;
     long            meals_to_eat;
-    long            start_sim;
-    bool            stop_sim;
+    long            sim_start;
+	bool			all_threads;
+    bool            sim_stop;
     pthread_t       monitor;
     pthread_mutex_t write_mtx;
     pthread_mutex_t table_mtx;
@@ -92,13 +93,37 @@ typedef struct s_philo
 
 void	table_init(t_table *table, int argc, char **argv);
 
+//simulation.c
+
+bool	init_simulation(t_table *table);
+void	*dinner_start(void *temp);
+
+//threads_utils.c
+
+int	    man_thread(pthread_t *thread, void *(*function)(void *), void *temp, t_thread_status code);
+void	sync_threads(bool finished_threads);
+void	threads_ready(long time);
+
+// dead_or_alive
+
+void	*shikigami(void *temp);
+
+// print.c
+
+void	print_status(t_philo *philo, t_status status);
+
 //utils.c
 
+bool	dinner_end(t_table *table);
 bool	ft_isdigit(char *str);
 int		ft_atoi(const char *str);
+long	real_time(long micro_converter);
+void	precise_usleep(long usec);
 
 //exits.c
 
+void	cleanup(t_table *table);
 void	error_msg(char *error);
+int     man_error(char *error);
 
 #endif

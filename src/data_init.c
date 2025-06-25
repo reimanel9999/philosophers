@@ -6,7 +6,7 @@
 /*   By: mcarvalh <mcarvalh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/12 19:17:46 by manelcarval       #+#    #+#             */
-/*   Updated: 2025/06/17 03:29:27 by mcarvalh         ###   ########.fr       */
+/*   Updated: 2025/06/25 11:27:13 by mcarvalh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,23 @@ static void	fork_init(t_philo *philos, t_fork *fork, int pos)
 	int	philo_nbr;
 
 	philo_nbr = philos->table->philo_nbr;
-	philos->fork_one = &fork[pos];
-	philos->fork_two = &fork[(pos + 1) % philo_nbr];
-	if (philos->id % 2 != 0)
+	
+	// Deadlock prevention strategy:
+	// Even philosophers: pick up left fork first, then right
+	// Odd philosophers: pick up right fork first, then left
+	// This breaks the circular wait condition
+	
+	if (philos->id % 2 == 0)
 	{
-		philos->fork_two = &fork[pos];
-		philos->fork_one = &fork[(pos + 1) % philo_nbr];
+		// Even philosophers: left fork first, then right
+		philos->fork_one = &fork[pos];                    // Left fork
+		philos->fork_two = &fork[(pos + 1) % philo_nbr];  // Right fork
+	}
+	else
+	{
+		// Odd philosophers: right fork first, then left
+		philos->fork_one = &fork[(pos + 1) % philo_nbr];  // Right fork
+		philos->fork_two = &fork[pos];                    // Left fork
 	}
 }
 
@@ -71,8 +82,9 @@ static void	threads_init(t_table *table)
 	int	m;
 
 	m = 0;
-	table->start_sim = false;
-	table->stop_sim = false;
+	table->sim_start = false;
+	table->sim_stop = false;
+	table->all_threads = false;
 	table->philos = malloc(sizeof(t_philo) * table->philo_nbr);
 	if (!table->philos)
 		error_msg("Philosophers memory allocation failed.");
@@ -97,9 +109,9 @@ void	table_init(t_table *table, int argc, char **argv)
 	if (!valid_input(argc, argv))
 		error_msg("Invalid Input.\n Please use only positive integers.");
 	table->philo_nbr = ft_atoi(argv[1]);
-	table->time_to_die = ft_atoi(argv[2]) * mili;
-	table->time_to_eat = ft_atoi(argv[3]) * mili;
-	table->time_to_sleep = ft_atoi(argv[4]) * mili;
+	table->time_to_die = ft_atoi(argv[2]) * micro;
+	table->time_to_eat = ft_atoi(argv[3]) * micro;
+	table->time_to_sleep = ft_atoi(argv[4]) * micro;
 	if (argv[5])
 	{
 		table->meals_to_eat = ft_atoi(argv[5]);
@@ -107,9 +119,9 @@ void	table_init(t_table *table, int argc, char **argv)
 			error_msg("Number of meals for each philo has to bigger than 0.");
 	}
 	else
-		table->meals_to_eat = -1;
-	if (table->time_to_die <= 60 * mili \
-	|| table->time_to_die <= 60 * mili || table->time_to_sleep <= 60 * mili)
+		table->meals_to_eat = -42;
+	if (table->time_to_die <= 60 * micro \
+	|| table->time_to_eat <= 60 * micro || table->time_to_sleep <= 60 * micro)
 		error_msg("Timestamp has to be bigger than 60ms.");
 	printf("Init Threads!\n");
 	threads_init(table);

@@ -1,30 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   thread_manager.c                                   :+:      :+:    :+:   */
+/*   threads_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcarvalh <mcarvalh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 12:33:21 by mcarvalh          #+#    #+#             */
-/*   Updated: 2025/06/17 17:45:42 by mcarvalh         ###   ########.fr       */
+/*   Updated: 2025/06/25 13:43:14 by mcarvalh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	man_mutex(pthread_mutex_t *mtx, t_thread_status code)
+void	sync_threads(bool finished_threads)
 {
-	if (code == INIT)
-		pthread_mutex_init(mtx, NULL);
-	else if (code == LOCK)
-		pthread_mutex_lock(mtx);
-	else if (code == UNLOCK)
-		pthread_mutex_unlock(mtx);
-	else if (code == DESTROY)
-		pthread_mutex_destroy(mtx);
+	while (finished_threads == false)
+		continue ;
 }
 
-void	man_thread(pthread_t *thread, void *(*function)(void *), void)
+void	threads_ready(long sim_start)
 {
-	
+	while (real_time(1) < sim_start)
+		continue ;	
+}
+
+int	man_thread(pthread_t *thread, void *(*function)(void *), void *temp, t_thread_status code)
+{
+	if (code == CREATE)
+	{
+		if (pthread_create(thread, NULL, function, temp) != 0)
+			return(man_error("Failed to create thread!"));
+	}
+	else if (code == JOIN)
+	{
+		if (pthread_join(*thread, NULL) != 0)
+			return (man_error("Failed to join thread!"));
+	}
+	else
+		return (man_error("Wrong thread operation"));
+	return (0);
 }
