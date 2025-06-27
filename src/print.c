@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   print.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcarvalh <mcarvalh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: manelcarvalho <manelcarvalho@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 15:05:40 by mcarvalh          #+#    #+#             */
-/*   Updated: 2025/06/25 15:53:58 by mcarvalh         ###   ########.fr       */
+/*   Updated: 2025/06/26 23:42:49 by manelcarval      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,18 +20,16 @@ void	print_status(t_philo *philo, t_status status)
 	if (dinner_end(philo->table))
 		return ;
 	pthread_mutex_lock(&philo->table->write_mtx);
-	// now = real_time(true); // apagar
-	curr_time = real_time(true) - philo->table->sim_start;
-	// printf("%ld %d %s (debug: now=%ld, start=%ld)\n", curr_time, philo->id, status, now, philo->table->sim_start); // apagar
+	curr_time = real_time(0) - philo->table->sim_start;
 	if (status == CONTEMPLATING)
-		printf("%ld philo: %d is contemplating...", curr_time, philo->id);	
+		printf("%ld %d is thinking\n", curr_time, philo->id);
 	else if (status == DIED)
-		printf("%ld philo: %d has died!", curr_time, philo->id);	
+		printf("%ld %d died\n", curr_time, philo->id);
 	else if (status == EATING)
-		printf("%ld philo: %d is eating", curr_time, philo->id);	
+		printf("%ld %d is eating\n", curr_time, philo->id);
 	else if (status == SLEEPING)
-		printf("%ld philo: %d is sleeping", curr_time, philo->id);
+		printf("%ld %d is sleeping\n", curr_time, philo->id);
 	else if (status == FIRST_FORK || status == SECOND_FORK)
-		printf("%ld philo: %d has picked up a fork", curr_time, philo->id);
+		printf("%ld %d has taken a fork\n", curr_time, philo->id);
 	pthread_mutex_unlock(&philo->table->write_mtx);
 }

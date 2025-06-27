@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcarvalh <mcarvalh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: manelcarvalho <manelcarvalho@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/07 13:39:02 by manu              #+#    #+#             */
-/*   Updated: 2025/06/25 15:57:55 by mcarvalh         ###   ########.fr       */
+/*   Updated: 2025/06/27 02:25:31 by manelcarval      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ typedef struct s_table
     long            sim_start;
 	bool			all_threads;
     bool            sim_stop;
+    long            running_threads;
     pthread_t       monitor;
     pthread_mutex_t write_mtx;
     pthread_mutex_t table_mtx;
@@ -82,7 +83,7 @@ typedef struct s_philo
     long		        meals_nbr;
     // int			is_valid;
     long		        last_meal;
-    // int            		full;
+    // int            		stuffed;
     t_fork              *fork_one;
     t_fork              *fork_two;
     pthread_mutex_t		philo_mutex;
@@ -98,10 +99,16 @@ void	table_init(t_table *table, int argc, char **argv);
 bool	init_simulation(t_table *table);
 void	*dinner_start(void *temp);
 
+// routines.c
+
+void	eating(t_philo *philo);
+void	sleeping(t_philo *philo);
+void	contemplating(t_philo *philo);
+
 //threads_utils.c
 
-int	    man_thread(pthread_t *thread, void *(*function)(void *), void *temp, t_thread_status code);
-void	sync_threads(bool finished_threads);
+void    man_thread(pthread_t *thread, void *(*function)(void *), void *temp, t_thread_status code);
+void	sync_threads(t_table *table);
 void	threads_ready(long time);
 
 // dead_or_alive
@@ -118,7 +125,7 @@ bool	dinner_end(t_table *table);
 bool	ft_isdigit(char *str);
 int		ft_atoi(const char *str);
 long	real_time(long micro_converter);
-void	precise_usleep(long usec);
+void	precise_usleep(long msec, t_table *table);
 
 //exits.c
 

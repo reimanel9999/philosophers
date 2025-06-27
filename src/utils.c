@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcarvalh <mcarvalh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: manelcarvalho <manelcarvalho@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/10 12:07:05 by manelcarval       #+#    #+#             */
-/*   Updated: 2025/06/25 15:22:41 by mcarvalh         ###   ########.fr       */
+/*   Updated: 2025/06/27 01:55:26 by manelcarval      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,27 +59,32 @@ int	ft_atoi(const char *str)
 long	real_time(long micro_converter)
 {
 	struct timeval	tv;
-	
+
+	(void)micro_converter; // Suppress unused parameter warning
 	if (gettimeofday(&tv, NULL))
 		error_msg("Time of day error");
-	if (micro_converter == micro)
-		return ((tv.tv_sec * 1000 * micro) + tv.tv_usec);
-	else
-		return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
-
+	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
-void	precise_usleep(long usec)
+void	precise_usleep(long msec, t_table *table)
 {
-	long	start;
-	long	current;
+	long start;
+	long elapsed;
+	long rem;
 
-	start = real_time(micro); // convert ms to us
-	while (1)
+	start = real_time(0); // Get start time in milliseconds
+	while (real_time(0) - start < msec)
 	{
-		current = real_time(micro); // convert ms to us
-		if (current - start >= usec)
-			break ;
-		usleep(100); // sleep in small chunks
+		if (dinner_end(table))
+			break;
+		elapsed = real_time(0) - start;
+		rem = msec - elapsed;
+		if (rem > 1)
+			usleep((rem * 1000) / 2); // Convert to microseconds for usleep
+		else
+		{
+			while (real_time(0) - start < msec)
+				;
+		}
 	}
 }

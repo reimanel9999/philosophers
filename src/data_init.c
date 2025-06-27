@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   data_init.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcarvalh <mcarvalh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: manelcarvalho <manelcarvalho@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/12 19:17:46 by manelcarval       #+#    #+#             */
-/*   Updated: 2025/06/25 11:27:13 by mcarvalh         ###   ########.fr       */
+/*   Updated: 2025/06/27 00:10:02 by manelcarval      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,22 +34,18 @@ static void	fork_init(t_philo *philos, t_fork *fork, int pos)
 
 	philo_nbr = philos->table->philo_nbr;
 	
-	// Deadlock prevention strategy:
-	// Even philosophers: pick up left fork first, then right
-	// Odd philosophers: pick up right fork first, then left
+	// Deadlock prevention strategy (following mcombeau's approach):
+	// Odd philosophers: pick up right fork first, then left (left-handed)
+	// Even philosophers: pick up left fork first, then right (right-handed)
 	// This breaks the circular wait condition
-	
-	if (philos->id % 2 == 0)
+
+	philos->fork_one = &fork[pos];                    // Left fork (default)
+	philos->fork_two = &fork[(pos + 1) % philo_nbr];  // Right fork (default)
+
+	if (philos->id % 2 == 1)  // ODD philosophers are left-handed
 	{
-		// Even philosophers: left fork first, then right
-		philos->fork_one = &fork[pos];                    // Left fork
-		philos->fork_two = &fork[(pos + 1) % philo_nbr];  // Right fork
-	}
-	else
-	{
-		// Odd philosophers: right fork first, then left
-		philos->fork_one = &fork[(pos + 1) % philo_nbr];  // Right fork
-		philos->fork_two = &fork[pos];                    // Left fork
+		philos->fork_one = &fork[(pos + 1) % philo_nbr];  // Right fork first
+		philos->fork_two = &fork[pos];                    // Left fork second
 	}
 }
 
@@ -85,6 +81,7 @@ static void	threads_init(t_table *table)
 	table->sim_start = false;
 	table->sim_stop = false;
 	table->all_threads = false;
+	table->running_threads = 0;
 	table->philos = malloc(sizeof(t_philo) * table->philo_nbr);
 	if (!table->philos)
 		error_msg("Philosophers memory allocation failed.");
@@ -109,9 +106,9 @@ void	table_init(t_table *table, int argc, char **argv)
 	if (!valid_input(argc, argv))
 		error_msg("Invalid Input.\n Please use only positive integers.");
 	table->philo_nbr = ft_atoi(argv[1]);
-	table->time_to_die = ft_atoi(argv[2]) * micro;
-	table->time_to_eat = ft_atoi(argv[3]) * micro;
-	table->time_to_sleep = ft_atoi(argv[4]) * micro;
+	table->time_to_die = ft_atoi(argv[2]);
+	table->time_to_eat = ft_atoi(argv[3]);
+	table->time_to_sleep = ft_atoi(argv[4]);
 	if (argv[5])
 	{
 		table->meals_to_eat = ft_atoi(argv[5]);
@@ -120,8 +117,8 @@ void	table_init(t_table *table, int argc, char **argv)
 	}
 	else
 		table->meals_to_eat = -42;
-	if (table->time_to_die <= 60 * micro \
-	|| table->time_to_eat <= 60 * micro || table->time_to_sleep <= 60 * micro)
+	if (table->time_to_die <= 60 \
+	|| table->time_to_eat <= 60 || table->time_to_sleep <= 60)
 		error_msg("Timestamp has to be bigger than 60ms.");
 	printf("Init Threads!\n");
 	threads_init(table);

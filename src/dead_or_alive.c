@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   dead_or_alive.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcarvalh <mcarvalh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: manelcarvalho <manelcarvalho@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 17:51:19 by manelcarval       #+#    #+#             */
-/*   Updated: 2025/06/25 13:45:14 by mcarvalh         ###   ########.fr       */
+/*   Updated: 2025/06/27 01:20:42 by manelcarval      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ static bool	death_of_philo(t_table *table)
 	while (i < table->philo_nbr)
 	{
 		pthread_mutex_lock(&table->philos[i].philo_mutex);
-		current_time = real_time(true);
+		current_time = real_time(0); // Get current time in milliseconds
 		if (current_time - table->philos[i].last_meal > table->time_to_die)
 		{
 			pthread_mutex_lock(&table->write_mtx);
@@ -41,7 +41,7 @@ static bool	all_philos_full(t_table *table)
 {
 	int	i;
 
-	if (table->meals_to_eat == -1)
+	if (table->meals_to_eat == -42)
 		return (false);
 	i = 0;
 	while (i < table->philo_nbr)
@@ -61,19 +61,32 @@ static bool	all_philos_full(t_table *table)
 void	*shikigami(void *temp)
 {
 	t_table	*table;
-	
+
 	table = (t_table *)temp;
-	sync_threads(table->all_threads);
+	// Wait for all philosopher threads to be running and ready
+	while (1)
+	{
+		pthread_mutex_lock(&table->table_mtx);
+		if (table->running_threads == table->philo_nbr)
+		{
+			pthread_mutex_unlock(&table->table_mtx);
+			break;
+		}
+		pthread_mutex_unlock(&table->table_mtx);
+		usleep(100);
+	}
 	while (!table->sim_stop)
 	{
 		if (death_of_philo(table))
 			return (NULL);
 		if (all_philos_full(table))
 		{
+			pthread_mutex_lock(&table->table_mtx);
 			table->sim_stop = true;
+			pthread_mutex_unlock(&table->table_mtx);
 			return (NULL);
 		}
-		precise_usleep(1000); // Check every 1ms
+		precise_usleep(5, table); // Check every 5ms to reduce race conditions
 	}
 	return (NULL);
 }
